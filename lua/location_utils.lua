@@ -118,7 +118,7 @@ M.vim_clap_list_or_jump = function(locations, lsp_client)
     source = clap_display_data,
     sink = reference_sink,
     on_move = on_move,
-    syntax = "clap-lsp-locations"
+    id = "References"
   }
   vim.fn["clap#run"](provider)
 end
