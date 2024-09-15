@@ -32,22 +32,23 @@ M.telescope_list_or_jump = function(title, params, locations, lsp_client, opts)
   else
     locations = vim.lsp.util.locations_to_items(locations, lsp_client.offset_encoding)
     pickers
-      .new(opts, {
-        prompt_title = title,
-        finder = finders.new_table({
-          results = locations,
-          entry_maker = opts.entry_maker or make_entry.gen_from_quickfix(opts),
-        }),
-        previewer = conf.qflist_previewer(opts),
-        sorter = conf.generic_sorter(opts),
-        push_cursor_on_edit = true,
-        push_tagstack_on_edit = true,
-      })
-      :find()
+        .new(opts, {
+          prompt_title = title,
+          finder = finders.new_table({
+            results = locations,
+            entry_maker = opts.entry_maker or make_entry.gen_from_quickfix(opts),
+          }),
+          previewer = conf.qflist_previewer(opts),
+          sorter = conf.generic_sorter(opts),
+          push_cursor_on_edit = true,
+          push_tagstack_on_edit = true,
+        })
+        :find()
   end
 end
 
 local reference_locations = {}
+local current_lsp_client = nil;
 local file_prefix_length = string.len("file://") + 1
 
 local function get_directory_name(path)
@@ -55,40 +56,46 @@ local function get_directory_name(path)
 end
 
 local function resolve_symlink(path)
-  local real_path = vim.loop.fs_realpath(path)
-  return real_path or path  -- Return the original path if `fs_realpath` fails
+  return vim.loop.fs_realpath(path) or path
 end
 
 local function get_index(selected)
-  local index = tonumber(string.match(selected, "%[(%d+)%]"))
-  -- local line_number = tonumber(string.match(selected, ":(%d+)$"));
-  return index
+  return tonumber(string.match(selected, "%[(%d+)%]"))
 end
 
 local function reference_sink(selected)
-  vim.print(selected)
-  if selected == nill then
+  if selected == nil then
+    vim.notify("Selected an invalid choice from the selection menu.")
     return
   end
   local idx = get_index(selected)
   vim.print(string.format("%d, %s", idx, selected))
 
   if reference_locations == nil then
-    vim.notify("No valid reference")
+    vim.notify("The locations from textDocument/references was not correctly populated!")
     return
   end
   local location = reference_locations[idx]
-  local fp = string.gsub(string.gsub(location.uri, "^file://", ""), "\\", "/")
-  vim.cmd(string.format("edit %s", fp))
+  if current_lsp_client ~= nil then
+    vim.lsp.util.jump_to_location(location, current_lsp_client)
+  else
+    -- default jump if the lsp client crashes or something?
+    local fp = string.gsub(string.gsub(location.uri, "^file://", ""), "\\", "/")
+    vim.cmd(string.format("edit %s", fp))
 
-  local lnum = tonumber(location.range.start.line) + 1
-  local cnum = tonumber(location.range.start.character)
-  local current_win = vim.api.nvim_get_current_win()
-  vim.api.nvim_win_set_cursor(current_win, {lnum, cnum})
+    local lnum = tonumber(location.range.start.line) + 1
+    local cnum = tonumber(location.range.start.character)
+    local current_win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_cursor(current_win, { lnum, cnum })
+  end
+  -- Reset our last known locations/client
+  reference_locations = nil
+  current_lsp_client = nil
 end
 
-M.vim_clap_list_or_jump = function (locations, lsp_client)
+M.vim_clap_list_or_jump = function(locations, lsp_client)
   reference_locations = locations
+  current_lsp_client = lsp_client
 
   local cwd = resolve_symlink(vim.fn.getcwd())
   local clap_display_data = {}
