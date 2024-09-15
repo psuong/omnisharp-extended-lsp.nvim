@@ -85,6 +85,7 @@ local gLsp = Command:new({
   omnisharp_cmd_name = "o#/findusages",
   omnisharp_result_to_locations = usages_to_locations,
   location_callback = loc_utils.qflist_list_or_jump,
+  clap_location_callback = loc_utils.vim_clap_list_or_jump,
   telescope_location_callback = loc_utils.telescope_list_or_jump,
 })
 
@@ -94,6 +95,9 @@ return {
   end,
   omnisharp_command = function()
     gLsp:omnisharp_cmd()
+  end,
+  clap_command = function()
+    gLsp:clap_cmd()
   end,
   telescope_command = function(opts)
     gLsp:telescope_cmd(opts)

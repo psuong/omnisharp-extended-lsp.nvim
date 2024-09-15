@@ -20,6 +20,7 @@ M.telescope_lsp_type_definition = m_type_definition.telescope_command
 M.type_definition_handler = m_type_definition.handler
 
 M.lsp_references = m_references.omnisharp_command
+M.clap_lsp_references = m_references.clap_command
 M.telescope_lsp_references = m_references.telescope_command
 M.references_handler = m_references.handler
 

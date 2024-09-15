@@ -17,6 +17,7 @@ local Command = {
   omnisharp_cmd_name = "o#/v2/gotodefinition",
   omnisharp_result_to_locations = function(err, result, ctx, config) end,
   location_callback = function(locations, lsp_client) end,
+  clap_location_callback = function(locations, lsp_client) end,
   telescope_location_callback = function(locations, r_params, lsp_client, telescope_opts) end,
 }
 
@@ -38,6 +39,21 @@ function Command:omnisharp_cmd()
   if client then
     client.request(self.omnisharp_cmd_name, o_utils.cmd_params(client), function(err, result, ctx, config)
       self:omnisharp_cmd_handler(err, result, ctx, config)
+    end)
+  end
+end
+
+function Command:clap_cmd_handler(err, result, ctx, config)
+  local lsp_client = vim.lsp.get_client_by_id(ctx.client_id)
+  local locations = self.omnisharp_result_to_locations(err, result, ctx, config)
+  self.clap_location_callback(locations, lsp_client)
+end
+
+function Command:clap_cmd()
+  local client = utils.get_omnisharp_client()
+  if client then
+    client.request(self.omnisharp_cmd_name, o_utils.cmd_params(client), function(err, result, ctx, config)
+      self:clap_cmd_handler(err, result, ctx, config)
     end)
   end
 end
