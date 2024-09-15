@@ -121,7 +121,6 @@ M.vim_clap_list_or_jump = function(locations, lsp_client)
     syntax = "clap-lsp-locations"
   }
   vim.fn["clap#run"](provider)
-  vim.api.nvim_input("<ESC>")
 end
 
 M.qflist_list = function(locations, lsp_client)
