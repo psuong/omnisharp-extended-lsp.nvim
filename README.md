@@ -48,6 +48,20 @@ nnoremap <leader>D <cmd>lua require('omnisharp_extended').telescope_lsp_type_def
 nnoremap gi <cmd>lua require('omnisharp_extended').telescope_lsp_implementation()<cr>
 ```
 
+You can also pass in the `excludeDefinition` option which does the equivalent of the `include_declaration` telescope setting.
+
+```lua
+vim.keymap.set(
+  "n",
+  "gr",
+  function() require("omnisharp_extended").telescope_lsp_references(require("telescope.themes").get_ivy({ excludeDefinition = true })) end,
+  { noremap = true }
+)
+vim.keymap.set("n", "gd", require("omnisharp_extended").telescope_lsp_definition, { noremap = true })
+vim.keymap.set("n", "<leader>D", function() require("omnisharp_extended").telescope_lsp_references() end, { noremap = true })
+vim.keymap.set("n", "gi", require("omnisharp_extended").telescope_lsp_implementation, { noremap = true })
+```
+
 ### Custom handler (*Suboptimal*)
 
 Using provided custom LSP handler for each supported action:
