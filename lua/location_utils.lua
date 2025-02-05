@@ -92,7 +92,7 @@ local function reference_sink(selected)
   end
   local location = reference_locations[idx]
   if current_lsp_client ~= nil then
-    vim.lsp.util.jump_to_location(location, current_lsp_client)
+    vim.lsp.util.jump_to_location(location, current_lsp_client.offset_encoding)
   else
     -- default jump if the lsp client crashes or something?
     local fp = string.gsub(string.gsub(location.uri, "^file://", ""), "\\", "/")
