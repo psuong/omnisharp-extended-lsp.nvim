@@ -68,7 +68,7 @@ function gotodefinition_to_locations(err, result, ctx, config)
   local lsp_client = vim.lsp.get_client_by_id(ctx.client_id)
   local locations = {}
 
-  if not result or not result.Definitions then
+  if not result or not result.Definitions or result.Definitions == vim.NIL then
     return locations
   end
 
@@ -76,7 +76,7 @@ function gotodefinition_to_locations(err, result, ctx, config)
     -- load metadata file if available
 
     local buf_file_name = definition.Location.FileName
-    if definition.MetadataSource then
+    if definition.MetadataSource ~= vim.NIL and definition.MetadataSource then
       local params = {
         timeout = 5000,
       }
@@ -90,7 +90,7 @@ function gotodefinition_to_locations(err, result, ctx, config)
     end
 
     -- load sourcegenerated file if available
-    if definition.SourceGeneratedFileInfo then
+    if definition.SourceGeneratedFileInfo ~= vim.NIL and definition.SourceGeneratedFileInfo then
       local params = {
         timeout = 5000,
       }
